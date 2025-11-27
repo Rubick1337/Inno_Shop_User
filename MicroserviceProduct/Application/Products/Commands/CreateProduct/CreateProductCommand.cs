@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Application.Dto.Product;
+using Domain.Models;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -8,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace Application.Products.Commands.CreateProduct
 {
-    public record CreateProductCommand(int UserId,Product Product) : IRequest;
+    public record CreateProductCommand(int UserId,CreateProductDto productDto) : IRequest;
 }

@@ -1,4 +1,5 @@
-﻿    using Domain.Models;
+﻿using Application.Dto.Product;
+using Domain.Models;
     using MediatR;
     using System;
     using System.Collections.Generic;
@@ -8,5 +9,5 @@
 
     namespace Application.Products.Queries.GetByIdProduct
     {
-        public record GetProductByIdQuery(int Id) : IRequest<Product>;
+        public record GetProductByIdQuery(int Id) : IRequest<ReadProductDto>;
     }

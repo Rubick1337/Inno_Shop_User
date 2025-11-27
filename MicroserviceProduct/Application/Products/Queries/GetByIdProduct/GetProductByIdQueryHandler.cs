@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Application.Dto.Product;
+using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
 using System;
@@ -9,13 +10,20 @@ using System.Threading.Tasks;
 
 namespace Application.Products.Queries.GetByIdProduct
 {
-    public class GetProductByIdQueryHandler(IProductRepository productRepository) : IRequestHandler<GetProductByIdQuery, Product>
+    public class GetProductByIdQueryHandler(IProductRepository productRepository) : IRequestHandler<GetProductByIdQuery, ReadProductDto>
     {
         private readonly IProductRepository _productRepository = productRepository;
 
-        public async Task<Product> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ReadProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _productRepository.GetByIdAsync(request.Id);
+            var product = await _productRepository.GetByIdAsync(request.Id);
+            return new ReadProductDto(
+                product.Name,
+                product.Description,
+                product.Price,
+                product.IsAvailable,
+                product.IsDeleted,
+                product.UserId); 
         }
     }
 }

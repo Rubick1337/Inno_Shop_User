@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Application.Dto.Product;
+using Domain.Models;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,5 @@ namespace Application.Products.Queries.GetAllProducts
     public record GetAllProductsQuery(int? UserId = null, 
         string? Name = null,
         decimal? MinPrice = null, 
-        decimal? MaxPrice = null) : IRequest<IEnumerable<Product>>;
+        decimal? MaxPrice = null) : IRequest<IEnumerable<ReadProductDto>>;
 }

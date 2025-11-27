@@ -24,8 +24,21 @@ namespace Application.Products.Commands.UpdateProduct
             {
                 throw new UnauthorizedAccessException("Вы не можете редактировать чужой продукт");
             }
+            var dto = request.productDto;
 
-            await _productRepository.UpdateAsync(request.Id, request.Product);
+            if (dto.Name is not null)
+                existingProduct.Name = dto.Name;
+
+            if (dto.Description is not null)
+                existingProduct.Description = dto.Description;
+
+            if (dto.Price.HasValue)
+                existingProduct.Price = dto.Price.Value;
+
+            if (dto.IsAvailable.HasValue)
+                existingProduct.IsAvailable = dto.IsAvailable.Value;
+
+            await _productRepository.UpdateAsync(request.Id, existingProduct);
         }
     }
 }

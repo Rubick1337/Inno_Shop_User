@@ -15,6 +15,9 @@ namespace Application.Products.Commands.DeleteProduct
         {
             var existingProduct = await _productRepository.GetByIdAsync(request.Id);
 
+            if (existingProduct.UserId != request.UserId)
+                throw new UnauthorizedAccessException("Вы не можете удалять чужой продукт");
+
             if (existingProduct is null)
             {
                 throw new InvalidOperationException("Продукт не найден");

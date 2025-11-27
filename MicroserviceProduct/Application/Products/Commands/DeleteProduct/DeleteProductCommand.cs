@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace Application.Products.Commands.DeleteProduct
 {
-    public record DeleteProductCommand(int Id) : IRequest;
+    public record DeleteProductCommand(int Id,int UserId) : IRequest;
 }
