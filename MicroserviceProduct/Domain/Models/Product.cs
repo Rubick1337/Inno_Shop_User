@@ -15,5 +15,6 @@ namespace Domain.Models
         public bool IsAvailable { get; set; }
         public bool IsDeleted { get; set; }
         public int UserId {  get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

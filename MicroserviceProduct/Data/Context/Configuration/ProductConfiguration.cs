@@ -25,7 +25,8 @@ namespace Data.Context.Configuration
                     Price = 590,
                     IsAvailable = true,
                     IsDeleted = false,
-                    UserId = 1
+                    UserId = 1,
+                    CreatedAt = new DateTime(2025, 11, 11,0,0,0, DateTimeKind.Utc)
                 },
                 new Product
                 {
@@ -35,7 +36,8 @@ namespace Data.Context.Configuration
                     Price = 1290,
                     IsAvailable = true,
                     IsDeleted = false,
-                    UserId = 1
+                    UserId = 1,
+                    CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Product
                 {
@@ -45,7 +47,8 @@ namespace Data.Context.Configuration
                     Price = 1990,
                     IsAvailable = true,
                     IsDeleted = false,
-                    UserId = 2
+                    UserId = 2,
+                    CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Product
                 {
@@ -55,7 +58,8 @@ namespace Data.Context.Configuration
                     Price = 290900,
                     IsAvailable = true,
                     IsDeleted = false,
-                    UserId = 2
+                    UserId = 2,
+                    CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
                 }
 );
         }
