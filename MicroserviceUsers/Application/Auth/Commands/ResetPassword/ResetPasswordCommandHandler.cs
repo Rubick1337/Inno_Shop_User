@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Cachekeys;
+using Application.Interfaces;
 using Domain.Interfaces;
 using MediatR;
 using System;
@@ -22,8 +23,7 @@ namespace Application.Auth.Commands.ResetPassword
             ResetPasswordCommand request,
             CancellationToken cancellationToken)
         {
-            var key = $"pwd_reset:{request.Email}";
-
+            var key = $"{CacheKeys.PASSWORD_RESET} + {request.Email}";
             var storedCode = await _redisRepository.GetDataAsync<string>(key);
 
             if (storedCode is null)

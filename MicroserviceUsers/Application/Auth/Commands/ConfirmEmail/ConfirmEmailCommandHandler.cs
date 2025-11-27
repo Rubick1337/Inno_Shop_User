@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Cachekeys;
+using Application.Interfaces;
 using Domain.Interfaces;
 using MediatR;
 using System;
@@ -20,7 +21,7 @@ namespace Application.Auth.Commands.ConfirmEmail
             ConfirmEmailCommand request,
             CancellationToken cancellationToken)
         {
-            var key = $"email_confirm:{request.Email}";
+            var key = $"{CacheKeys.EMAIL_CONFIRM} + {request.Email}";
             var storedCode = await _redisRepository.GetDataAsync<string>(key);
 
             if (storedCode is null || storedCode != request.Code)

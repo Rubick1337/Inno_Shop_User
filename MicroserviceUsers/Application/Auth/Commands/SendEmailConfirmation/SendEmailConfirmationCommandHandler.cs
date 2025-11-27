@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Cachekeys;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using MediatR;
@@ -26,6 +27,7 @@ namespace Application.Auth.Commands.SendEmailConfirmation
             CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email);
+            var key = $"{CacheKeys.EMAIL_CONFIRM} + {request.Email}";
 
             if (user is null || user.IsActived)
                 return;
@@ -33,7 +35,7 @@ namespace Application.Auth.Commands.SendEmailConfirmation
             var code = _codeGenerator.GenerateCode();
 
             await _redisRepository.SetDataAsync(
-                key: $"email_confirm:{request.Email}",
+                key,
                 value: code,
                 minutes: 15);
 

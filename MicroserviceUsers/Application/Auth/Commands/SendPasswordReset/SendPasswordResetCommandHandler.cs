@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Cachekeys;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using MediatR;
@@ -16,22 +17,24 @@ namespace Application.Auth.Commands.SendPasswordReset
             IEmailService emailService)
         : IRequestHandler<SendPasswordResetCommand>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IRedisRepository _redisRepository;
-        private readonly ICodeGenerator _codeGenerator;
-        private readonly IEmailService _emailService;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IRedisRepository _redisRepository = redisRepository;
+        private readonly ICodeGenerator _codeGenerator = codeGenerator;
+        private readonly IEmailService _emailService = emailService;
 
         public async Task Handle(
             SendPasswordResetCommand request,
             CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email);
+            var key = $"{CacheKeys.PASSWORD_RESET} + {request.Email}";
+
             if (user is null)
                 return;
 
             var code = _codeGenerator.GenerateCode();
 
-            await _redisRepository.SetDataAsync(key: $"email_confirm:{request.Email}",
+            await _redisRepository.SetDataAsync(key,
                 value: code,
                 minutes: 15);
 

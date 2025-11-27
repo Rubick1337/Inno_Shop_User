@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Cachekeys;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using Domain.Models;
@@ -26,8 +27,6 @@ namespace Application.Auth.Commands.RegisterUser
         private readonly IJwtProvider _jwtProvider = jwtProvider;
         private readonly ICodeGenerator _codeGenerator = codeGenerator;
         
-
-
         public async Task<string> Handle(
             RegisterUserCommand request,
             CancellationToken cancellationToken)
@@ -37,6 +36,7 @@ namespace Application.Auth.Commands.RegisterUser
                 throw new InvalidOperationException("Пользователь уже существует");
 
             var hashedPassword = _passwordHasher.Generate(request.Password);
+            var keyEmail = $"{CacheKeys.EMAIL_CONFIRM} + {request.Email}";
 
             var user = new User
             {
@@ -52,7 +52,7 @@ namespace Application.Auth.Commands.RegisterUser
             var confirmCode = _codeGenerator.GenerateCode();
 
             await _redisRepository.SetDataAsync(
-                key: $"email_confirm:{request.Email}",
+                keyEmail,
                 value: confirmCode,
                 minutes: 10);
 
@@ -64,6 +64,7 @@ namespace Application.Auth.Commands.RegisterUser
             );
 
             var token = _jwtProvider.GenerateToken(user);
+
             return token;
         }
     }
