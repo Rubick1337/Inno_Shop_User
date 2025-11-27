@@ -22,7 +22,11 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddHttpClient("Products", client =>
+{
+    var baseUrl = configuration["Services:ProductsBaseUrl"];
+    client.BaseAddress = new Uri(baseUrl);
+});
 builder.Services.AddServices();
 builder.Services.AddRepositories();
 

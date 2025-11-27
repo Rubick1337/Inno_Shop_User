@@ -45,10 +45,9 @@ namespace Inno_Shop_User.Controllers
 
             if (!validation.IsValid)
             {
-                validation.AddToModelState(ModelState, null);
+                validation.AddToModelState(ModelState);
                 return BadRequest(ModelState);
             }
-
             await _mediator.Send(new UpdateUserCommand(id, dto));
             return Ok("Updated");
         }
