@@ -6,5 +6,6 @@ using System.Threading.Tasks;
 
 namespace Application.Dto.Product
 {
-    public record ReadProductDto(string Name, string Description, decimal Price, bool IsAvailable, bool IsDeleted , int UserId);
+    public record ReadProductDto(string Name, string Description, decimal Price,
+        bool IsAvailable, bool IsDeleted , int UserId, DateTime CreatedAt);
 }

@@ -23,7 +23,8 @@ namespace Application.Products.Queries.GetByIdProduct
                 product.Price,
                 product.IsAvailable,
                 product.IsDeleted,
-                product.UserId); 
+                product.UserId,
+                product.CreatedAt); 
         }
     }
 }

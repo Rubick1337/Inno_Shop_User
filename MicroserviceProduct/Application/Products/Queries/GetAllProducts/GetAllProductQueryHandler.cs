@@ -27,7 +27,8 @@ namespace Application.Products.Queries.GetAllProducts
                 p.Price,
                 p.IsAvailable,
                 p.IsDeleted,
-                p.UserId
+                p.UserId,
+                p.CreatedAt
                 )); ;
 
         }

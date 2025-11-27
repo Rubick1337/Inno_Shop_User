@@ -23,7 +23,8 @@ namespace Application.Products.Commands.CreateProduct
                 Price = dto.Price,
                 IsAvailable = dto.IsAvailable,
                 IsDeleted = false,
-                UserId = request.UserId
+                UserId = request.UserId,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _productRepository.CreateAsync(product);
