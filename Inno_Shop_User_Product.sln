@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inno_Shop_Product", "Micros
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestMicroserviceUsers", "UnitTestMicroserviceUsers\UnitTestMicroserviceUsers.csproj", "{785777C8-4DAE-469E-B4F9-6AE44F2B96CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestsMicroserviceProduct", "UnitTestsMicroserviceProduct\UnitTestsMicroserviceProduct.csproj", "{9D82E355-99DB-4C06-9469-96D2355FB32A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{785777C8-4DAE-469E-B4F9-6AE44F2B96CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{785777C8-4DAE-469E-B4F9-6AE44F2B96CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{785777C8-4DAE-469E-B4F9-6AE44F2B96CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D82E355-99DB-4C06-9469-96D2355FB32A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D82E355-99DB-4C06-9469-96D2355FB32A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D82E355-99DB-4C06-9469-96D2355FB32A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D82E355-99DB-4C06-9469-96D2355FB32A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{E9929AF3-9F0A-4ED2-A958-966D7B396E0A} = {1199759F-7D51-4BDC-9A28-00F56AFDCEAD}
 		{706FFD7E-B177-4066-BFA8-D485FA440706} = {1199759F-7D51-4BDC-9A28-00F56AFDCEAD}
 		{785777C8-4DAE-469E-B4F9-6AE44F2B96CC} = {EE3BE1DD-75A6-4B9B-A63D-19327F1D5B61}
+		{9D82E355-99DB-4C06-9469-96D2355FB32A} = {1199759F-7D51-4BDC-9A28-00F56AFDCEAD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B78B09C6-2F4F-408A-A8F1-C2CDAD42D83D}
