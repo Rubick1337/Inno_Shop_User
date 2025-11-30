@@ -12,5 +12,6 @@ namespace Application.Products.Queries.GetAllProducts
     public record GetAllProductsQuery(int? UserId = null, 
         string? Name = null,
         decimal? MinPrice = null, 
-        decimal? MaxPrice = null) : IRequest<IEnumerable<ReadProductDto>>;
+        decimal? MaxPrice = null,
+        bool? IsAviable = null) : IRequest<IEnumerable<ReadProductDto>>;
 }

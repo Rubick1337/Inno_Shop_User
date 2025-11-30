@@ -19,7 +19,8 @@ namespace Application.Products.Queries.GetAllProducts
                 name: request.Name,
                 minPrice: request.MinPrice,
                 maxPrice: request.MaxPrice,
-                userId: request.UserId);
+                userId: request.UserId,
+                isAvailable: request.IsAviable);
 
             return products.Select(p => new ReadProductDto(
                 p.Name,

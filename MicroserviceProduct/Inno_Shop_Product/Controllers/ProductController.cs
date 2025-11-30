@@ -30,9 +30,10 @@ namespace Inno_Shop_Product.Controllers
         public async Task<IActionResult> GetAll([FromQuery] int? userId, 
             [FromQuery] string? name = null, 
             [FromQuery] decimal? minPrice = null, 
-            [FromQuery] decimal? maxPrice = null)
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] bool? IsAvailable = null)
         {
-            var query = new GetAllProductsQuery(userId, name, minPrice, maxPrice);
+            var query = new GetAllProductsQuery(userId, name, minPrice, maxPrice, IsAvailable);
             var products = await _mediator.Send(query);
             return Ok(products);
         }
