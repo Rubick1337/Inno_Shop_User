@@ -8,6 +8,7 @@ namespace Application.dto.User
 {
     public record UpdateUserDto(
         string? Name,
-        string? Email
+        string? Email,
+        string? Role
     );
 }

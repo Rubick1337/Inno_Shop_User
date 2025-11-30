@@ -28,7 +28,7 @@ namespace UnitTestMicroserviceUsers.Users.Commands
                 IsActived = false
             };
             var userDto = new UpdateUserDto(Name: "Test2",
-                Email: "test2@gmail.com");
+                Email: "test2@gmail.com",Role: "Admin");
             repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(user);
             var command = new UpdateUserCommand(Id: 10, Dto: userDto);
             var handler = new UpdateUserCommandHandler(repositoryUserMock.Object);
@@ -43,7 +43,7 @@ namespace UnitTestMicroserviceUsers.Users.Commands
             var repositoryUserMock = new Mock<IUserRepository>();
             repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync((User?)null);
             var userDto = new UpdateUserDto(Name: "Test2",
-                Email: "test2@gmail.com");
+                Email: "test2@gmail.com", Role: "Admin");
             var command = new UpdateUserCommand(Id: 10, Dto: userDto);
             var handler = new UpdateUserCommandHandler(repositoryUserMock.Object);
 

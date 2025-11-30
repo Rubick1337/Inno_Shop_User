@@ -30,6 +30,9 @@ namespace Application.Users.Commands
             if (dto.Email is not null)
                 existing.Email = dto.Email;
 
+            if(dto.Role is not null)
+                existing.Role = dto.Role;
+
             await _userRepository.UpdateAsync(request.Id, existing);
         }
     }

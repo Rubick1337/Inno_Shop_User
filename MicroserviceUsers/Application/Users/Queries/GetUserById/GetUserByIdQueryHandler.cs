@@ -19,6 +19,8 @@ namespace Application.Users.Queries.GetUserById
             CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.Id);
+            if (user == null)
+                return null;
 
             return new ReadUserDto(
                 user.Id,
