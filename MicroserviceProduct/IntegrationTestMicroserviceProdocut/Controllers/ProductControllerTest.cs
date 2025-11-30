@@ -16,7 +16,10 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task GetAllProduct_Should_ReturnProducts()
         {
-            var response = await _client.GetAsync("/api/products");
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
+
+            var response = await client.GetAsync("/api/products");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
@@ -26,8 +29,8 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task GetById_NotExistingProduct_NotFound()
         {
-            using var factory = new WebApplicationFactory<Program>();
-            using var client = factory.CreateClient();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
             var response = await client.GetAsync("/api/products/999999");
 
@@ -36,8 +39,8 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task GetById_Should_ReturnProduct()
         {
-            using var factory = new WebApplicationFactory<Program>();
-            using var client = factory.CreateClient();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
             var response = await client.GetAsync("/api/products/3");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -48,8 +51,8 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task CreateProduct_WithoutAuth()
         {
-            using var factory = new WebApplicationFactory<Program>();
-            using var client = factory.CreateClient();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
             var newProduct = new CreateProductDto(
                 "Мышка",
@@ -64,8 +67,8 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task DeleteProduct_WithoutAuth()
         {
-            using var factory = new WebApplicationFactory<Program>();
-            using var client = factory.CreateClient();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
             var response = await client.DeleteAsync("/api/products/1");
 
@@ -74,8 +77,8 @@ namespace IntegrationTestMicroserviceProdocut.Controllers
         [Fact]
         public async Task SoftDeleteProduct_Should_Return()
         {
-            using var factory = new WebApplicationFactory<Program>();
-            using var client = factory.CreateClient();
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
             var response = await client.PatchAsync("/api/products/1/softdelete", content: null);
 
