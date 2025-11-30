@@ -15,6 +15,7 @@ services:
         ASPNETCORE_ENVIRONMENT: "Development"
         ConnectionStrings__DefaultConnection: "Host=users-db;Port=5432;Database=Inno_Shop;Username=postgres;Password=170573"
         ConnectionStrings__Redis: "redis-users:6379"
+        Services__ProductsBaseUrl: "http://product-api:8080"
   product-api:
     build:
         context: ./MicroserviceProduct
