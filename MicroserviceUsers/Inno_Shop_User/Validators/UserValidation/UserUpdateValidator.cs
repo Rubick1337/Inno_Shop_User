@@ -11,6 +11,10 @@ namespace Inno_Shop_User.Validators.UserValidation
 
             RuleFor(x => x.Email)
                 .EmailAddress().WithMessage("Некорректный формат email");
+
+            RuleFor(x => x.Role)
+                .Must(role => role == "User" || role == "Admin")
+                .WithMessage("Роль должна быть User или Admin");
         }
     }
 }
