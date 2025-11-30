@@ -1,0 +1,13 @@
+﻿using Application.Dto.Product;
+using Domain.Models;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Products.Commands.UpdateProduct
+{
+    public record UpdateProductCommand(int Id, UpdateProductDto productDto, int UserId) : IRequest;
+}

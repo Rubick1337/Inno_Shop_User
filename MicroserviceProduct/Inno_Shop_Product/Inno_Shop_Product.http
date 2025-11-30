@@ -1,0 +1,6 @@
+@Inno_Shop_Product_HostAddress = http://localhost:5188
+
+GET {{Inno_Shop_Product_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
