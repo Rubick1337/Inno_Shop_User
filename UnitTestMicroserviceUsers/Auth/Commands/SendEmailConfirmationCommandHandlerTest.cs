@@ -1,4 +1,5 @@
-﻿using Application.Auth.Commands.SendEmailConfirmation;
+﻿using Application.Auth.Commands.ResetPassword;
+using Application.Auth.Commands.SendEmailConfirmation;
 using Application.Cachekeys;
 using Application.Interfaces;
 using Application.Services;
@@ -15,42 +16,48 @@ namespace UnitTestMicroserviceUsers.Auth.Commands
 {
     public class SendEmailConfirmationCommandHandlerTest
     {
+        private readonly Mock<IUserRepository> _userRepositoryMock;
+        private readonly Mock<IRedisRepository> _redisRepositoryMock;
+        private readonly Mock<IEmailService> _emailServiceMock;
+        private readonly Mock<ICodeGenerator> _codeGeneratorMock;
+        private readonly SendEmailConfirmationCommandHandler _handler;
+
+        public SendEmailConfirmationCommandHandlerTest()
+        {
+            _userRepositoryMock = new Mock<IUserRepository>();
+            _redisRepositoryMock = new Mock<IRedisRepository>();
+            _emailServiceMock = new Mock<IEmailService>();
+            _codeGeneratorMock = new Mock<ICodeGenerator>();
+
+            _handler = new SendEmailConfirmationCommandHandler(
+                _userRepositoryMock.Object,
+                _emailServiceMock.Object,
+                _redisRepositoryMock.Object,
+                _codeGeneratorMock.Object);
+        }
+
+        private SendEmailConfirmationCommand CreateCommand(string email)
+        {
+            return new SendEmailConfirmationCommand(email);
+        }
+
         [Fact]
         public async Task Handle_UserNotFound_Should_DoNothing()
         {
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var redisRepositoryMock = new Mock<IRedisRepository>();
-            var emailServiceMock = new Mock<IEmailService>();
-            var codeGeneratorMock = new Mock<ICodeGenerator>();
-
             var email = "test@example.com";
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync((User?)null);
+            var command = CreateCommand(email);
 
-            userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync((User?)null);
+            await _handler.Handle(command, CancellationToken.None);
 
-            var handler = new SendEmailConfirmationCommandHandler(
-                userRepositoryMock.Object,
-                emailServiceMock.Object,
-                redisRepositoryMock.Object,
-                codeGeneratorMock.Object);
-
-            var command = new SendEmailConfirmationCommand(Email: email);
-
-            await handler.Handle(command, CancellationToken.None);
-
-            redisRepositoryMock.Verify(r => r.SetDataAsync( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()),Times.Never);
-            emailServiceMock.Verify(e => e.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),Times.Never);
+            _redisRepositoryMock.Verify(r => r.SetDataAsync( It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()),Times.Never);
+            _emailServiceMock.Verify(e => e.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),Times.Never);
         }
 
         [Fact]
         public async Task Handle_UserAlreadyActive_Should_DoNothing()
         {
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var redisRepositoryMock = new Mock<IRedisRepository>();
-            var emailServiceMock = new Mock<IEmailService>();
-            var codeGeneratorMock = new Mock<ICodeGenerator>();
-
             var email = "active@example.com";
-
             var user = new User
             {
                 Id = 1,
@@ -60,29 +67,17 @@ namespace UnitTestMicroserviceUsers.Auth.Commands
                 Role = "User",
                 IsActived = true
             };
-            userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
 
-            var handler = new SendEmailConfirmationCommandHandler(
-                userRepositoryMock.Object,
-                emailServiceMock.Object,
-                redisRepositoryMock.Object,
-                codeGeneratorMock.Object);
+            var command = CreateCommand(email);
+            await _handler.Handle(command, CancellationToken.None);
 
-            var command = new SendEmailConfirmationCommand(Email: email);
-
-            await handler.Handle(command, CancellationToken.None);
-
-            redisRepositoryMock.Verify(r => r.SetDataAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()),Times.Never);
-            emailServiceMock.Verify(e => e.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),Times.Never);
+            _redisRepositoryMock.Verify(r => r.SetDataAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()),Times.Never);
+            _emailServiceMock.Verify(e => e.SendAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),Times.Never);
         }
         [Fact]
         public async Task Handle_InactiveUser_Should_SetCodeInRedis_And_SendEmail()
         {
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var redisRepositoryMock = new Mock<IRedisRepository>();
-            var emailServiceMock = new Mock<IEmailService>();
-            var codeGeneratorMock = new Mock<ICodeGenerator>();
-
             var email = "user@example.com";
             var code = "123456";
             var key = $"{CacheKeys.EMAIL_CONFIRM} + {email}";
@@ -97,21 +92,14 @@ namespace UnitTestMicroserviceUsers.Auth.Commands
                 IsActived = false
             };
 
-            userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
-            codeGeneratorMock.Setup(g => g.GenerateCode(6)).Returns(code);
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
+            _codeGeneratorMock.Setup(g => g.GenerateCode(6)).Returns(code);
 
-            var handler = new SendEmailConfirmationCommandHandler(
-                userRepositoryMock.Object,
-                emailServiceMock.Object,
-                redisRepositoryMock.Object,
-                codeGeneratorMock.Object);
+            var command = CreateCommand(email);
+            await _handler.Handle(command, CancellationToken.None);
 
-            var command = new SendEmailConfirmationCommand(Email: email);
-
-            await handler.Handle(command, CancellationToken.None);
-
-            redisRepositoryMock.Verify(r =>r.SetDataAsync(key, code, 15),Times.Once);
-            emailServiceMock.Verify(e =>
+            _redisRepositoryMock.Verify(r =>r.SetDataAsync(key, code, 15),Times.Once);
+            _emailServiceMock.Verify(e =>
                 e.SendAsync( email,
                 "Повторная отправка подтверждения Email",
                 It.Is<string>(body => body.Contains(code))),

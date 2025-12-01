@@ -1,4 +1,5 @@
-﻿using Application.Users.Queries.GetUserById;
+﻿using Application.Users.Queries.GetAllUsers;
+using Application.Users.Queries.GetUserById;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -12,11 +13,17 @@ namespace UnitTestMicroserviceUsers.Users.Queries
 {
     public class GetUserByIdQueryHandlerTest
     {
-        [Fact]
-        public async Task GetUsersById_Should_Get_User()
+        private readonly Mock<IUserRepository> _repositoryUserMock;
+        private readonly GetUserByIdQueryHandler _handler;
+
+        public GetUserByIdQueryHandlerTest()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            var user = new User
+            _repositoryUserMock = new Mock<IUserRepository>();
+            _handler = new GetUserByIdQueryHandler(_repositoryUserMock.Object);
+        }
+        private User CreateTestUser()
+        {
+            return new User
             {
                 Id = 10,
                 Name = "Test",
@@ -25,13 +32,21 @@ namespace UnitTestMicroserviceUsers.Users.Queries
                 Role = "User",
                 IsActived = false
             };
-            repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(user);
-            var query = new GetUserByIdQuery(Id: 10);
-            var handler = new GetUserByIdQueryHandler(repositoryUserMock.Object);
+        }
+        private GetUserByIdQuery CreateQuery(int id)
+        {
+            return new GetUserByIdQuery(Id: id);
+        }
+        [Fact]
+        public async Task GetUsersById_Should_Get_User()
+        {
+            var user = CreateTestUser();
+            _repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(user);
+            var query = CreateQuery(10);
 
-            var result = await handler.Handle(query,CancellationToken.None);
+            var result = await _handler.Handle(query,CancellationToken.None);
 
-            repositoryUserMock.Verify(r => r.GetByIdAsync(10),Times.Once());
+            _repositoryUserMock.Verify(r => r.GetByIdAsync(10),Times.Once());
             Assert.NotNull(result);
             Assert.Equal(10, result.Id);
             Assert.Equal("Test", result.Name);

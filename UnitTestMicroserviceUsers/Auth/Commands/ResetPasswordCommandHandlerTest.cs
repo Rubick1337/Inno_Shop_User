@@ -1,4 +1,5 @@
-﻿using Application.Auth.Commands.ResetPassword;
+﻿using Application.Auth.Commands.RegisterUser;
+using Application.Auth.Commands.ResetPassword;
 using Application.Cachekeys;
 using Application.Interfaces;
 using Domain.Interfaces;
@@ -14,12 +15,31 @@ namespace UnitTestMicroserviceUsers.Auth.Commands
 {
     public class ResetPasswordCommandHandlerTest
     {
+        private readonly Mock<IUserRepository> _userRepositoryMock;
+        private readonly Mock<IRedisRepository> _redisRepositoryMock;
+        private readonly Mock<IPasswordHasher> _passwordHasherMock;
+        private readonly ResetPasswordCommandHandler _handler;
+
+        public ResetPasswordCommandHandlerTest()
+        {
+            _userRepositoryMock = new Mock<IUserRepository>();
+            _redisRepositoryMock = new Mock<IRedisRepository>();
+            _passwordHasherMock = new Mock<IPasswordHasher>();
+
+            _handler = new ResetPasswordCommandHandler(
+                _userRepositoryMock.Object,
+                _redisRepositoryMock.Object,
+                _passwordHasherMock.Object);
+        }
+        private ResetPasswordCommand CreateCommand(string email, string code, string password)
+        {
+            return new ResetPasswordCommand(email, code, password);
+        }
+
         [Fact]
         public async Task ResetPassword_Should_Update()
         {
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var redisRepositoryMock = new Mock<IRedisRepository>();
-            var passwordHasherMock = new Mock<IPasswordHasher>();
+
             var email = "test@example.com";
             var newPassword = "new_password";
             var key = $"{CacheKeys.PASSWORD_RESET} + {email}";
@@ -34,49 +54,37 @@ namespace UnitTestMicroserviceUsers.Auth.Commands
                 IsActived = true
             };
 
-            redisRepositoryMock .Setup(r => r.GetDataAsync<string>(key)).ReturnsAsync("123456");
-            userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
-            passwordHasherMock.Setup(h => h.Generate(newPassword)).Returns("new_hash");
+            _redisRepositoryMock .Setup(r => r.GetDataAsync<string>(key)).ReturnsAsync("123456");
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync(user);
+            _passwordHasherMock.Setup(h => h.Generate(newPassword)).Returns("new_hash");
 
-            var handler = new ResetPasswordCommandHandler(
-                userRepositoryMock.Object,
-                redisRepositoryMock.Object,
-                passwordHasherMock.Object);
 
-            var command = new ResetPasswordCommand(email,"123456", newPassword);
+            var command = CreateCommand(email,"123456", newPassword);
 
-            await handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
-            redisRepositoryMock.Verify(r => r.GetDataAsync<string>(key), Times.Once);
-            passwordHasherMock.Verify(h => h.Generate(newPassword), Times.Once);
+            _redisRepositoryMock.Verify(r => r.GetDataAsync<string>(key), Times.Once);
+            _passwordHasherMock.Verify(h => h.Generate(newPassword), Times.Once);
 
-            userRepositoryMock.Verify(r =>r.UpdateAsync(user.Id, It.Is<User>(u => u.PasswordHash == "new_hash")),Times.Once);
+            _userRepositoryMock.Verify(r =>r.UpdateAsync(user.Id, It.Is<User>(u => u.PasswordHash == "new_hash")),Times.Once);
         }
 
         [Fact]
         public async Task ResetPassword_WhenUserNotFound()
         {
-            var userRepositoryMock = new Mock<IUserRepository>();
-            var redisRepositoryMock = new Mock<IRedisRepository>();
-            var passwordHasherMock = new Mock<IPasswordHasher>();
             var email = "test@example.com";
             var key = $"{CacheKeys.PASSWORD_RESET} + {email}";
 
-            redisRepositoryMock.Setup(r => r.GetDataAsync<string>(key)).ReturnsAsync("123456");
-            userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync((User?)null);
+            _redisRepositoryMock.Setup(r => r.GetDataAsync<string>(key)).ReturnsAsync("123456");
+            _userRepositoryMock.Setup(r => r.GetByEmailAsync(email)).ReturnsAsync((User?)null);
 
-            var handler = new ResetPasswordCommandHandler(
-                userRepositoryMock.Object,
-                redisRepositoryMock.Object,
-                passwordHasherMock.Object);
-
-            var command = new ResetPasswordCommand(email,"new_password","123456");
+            var command = CreateCommand(email,"new_password","123456");
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await handler.Handle(command, CancellationToken.None));
+                await _handler.Handle(command, CancellationToken.None));
 
-            passwordHasherMock.Verify(h => h.Generate(It.IsAny<string>()), Times.Never);
-            userRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<int>(), It.IsAny<User>()), Times.Never);
+            _passwordHasherMock.Verify(h => h.Generate(It.IsAny<string>()), Times.Never);
+            _userRepositoryMock.Verify(r => r.UpdateAsync(It.IsAny<int>(), It.IsAny<User>()), Times.Never);
         }
     }
 }
