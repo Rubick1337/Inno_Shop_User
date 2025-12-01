@@ -13,20 +13,31 @@ namespace UnitTestsMicroserviceProduct.Products.Commands
 {
     public class CreateProductCommandHandlerTest
     {
+        private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly CreateProductCommandHandler _handler;
+
+        public CreateProductCommandHandlerTest()
+        {
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _handler = new CreateProductCommandHandler(_productRepositoryMock.Object);
+        }
+        private CreateProductCommand CreateCommand(CreateProductDto dto, int id)
+        {
+            return new CreateProductCommand(id, dto);
+        }
         [Fact]
         public async Task CreateProduct_Should_Create()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
             var dto = new CreateProductDto(
                 Name: "Мышка",
                 Description: "Игровая мышь",
-                Price: 999m,
+                Price: 999,
                 IsAvailable: true
             );
-            var command = new CreateProductCommand(productDto: dto, UserId: 10);
-            var handler = new CreateProductCommandHandler(productRepositoryMock.Object);
-            await handler.Handle(command, CancellationToken.None);
-            productRepositoryMock.Verify(r => r.CreateAsync(
+            var command = CreateCommand(dto, 10);
+
+            await _handler.Handle(command, CancellationToken.None);
+            _productRepositoryMock.Verify(r => r.CreateAsync(
                 It.Is<Product>(p =>
                     p.Name == dto.Name &&
                     p.Description == dto.Description &&

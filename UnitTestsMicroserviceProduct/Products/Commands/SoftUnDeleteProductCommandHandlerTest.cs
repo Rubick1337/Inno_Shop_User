@@ -12,16 +12,27 @@ namespace UnitTestsMicroserviceProduct.Products.Commands
 {
     public class SoftUnDeleteProductCommandHandlerTest
     {
+        private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly SoftUnDeleteProductCommandHandler _handler;
+
+        public SoftUnDeleteProductCommandHandlerTest()
+        {
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _handler = new SoftUnDeleteProductCommandHandler(_productRepositoryMock.Object);
+        }
+        private SoftUnDeleteProductCommand CreateCommand(int userId)
+        {
+            return new SoftUnDeleteProductCommand(userId);
+        }
+
         [Fact]
         public async Task SoftUnDeleteProduct_Should_SoftUnDelete()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
-            var handler = new SoftUnDeleteProductCommandHandler(productRepositoryMock.Object);
-            var command = new SoftUnDeleteProductCommand(UserId: 5);
+            var command = CreateCommand(5);
 
-            await handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
-            productRepositoryMock.Verify(r => r.SoftUnDeleteAsync(5), Times.Once);
+            _productRepositoryMock.Verify(r => r.SoftUnDeleteAsync(5), Times.Once);
         }
     }
 }
