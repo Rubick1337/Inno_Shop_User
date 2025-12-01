@@ -1,4 +1,6 @@
-﻿using Application.Products.Queries.GetAllProducts;
+﻿using Application.Dto.Product;
+using Application.Products.Commands.UpdateProduct;
+using Application.Products.Queries.GetAllProducts;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -12,11 +14,18 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
 {
     public class GetAllProductQueryHandlerTest
     {
-        [Fact]
-        public async Task GetAllProductQuery_Should_GetProducts()
+        private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly GetAllProductQueryHandler _handler;
+
+        public GetAllProductQueryHandlerTest()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
-            var products = new List<Product>
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _handler = new GetAllProductQueryHandler(_productRepositoryMock.Object);
+        }
+
+        private static List<Product> CreateTestProducts()
+        {
+            return new List<Product>
             {
                 new Product
                 {
@@ -27,7 +36,7 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
                     IsAvailable = true,
                     IsDeleted = false,
                     UserId = 1,
-                    CreatedAt = new DateTime(2025, 11, 11,0,0,0, DateTimeKind.Utc)
+                    CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
                 },
                 new Product
                 {
@@ -39,16 +48,30 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
                     IsDeleted = false,
                     UserId = 1,
                     CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
-                },
+                }
             };
-            productRepositoryMock.Setup(r => r.GetAll(It.IsAny<string?>(), It.IsAny<decimal?>(),
+        }
+
+        private GetAllProductsQuery CreateQuery(int? UserId = null,
+            string? Name = null,
+            decimal? MinPrice = null,
+            decimal? MaxPrice = null,
+            bool? IsAviable = null)
+        {
+            return new GetAllProductsQuery(UserId,Name,MinPrice,MaxPrice,IsAviable);
+        }
+
+        [Fact]
+        public async Task GetAllProductQuery_Should_GetProducts()
+        {
+            var products = CreateTestProducts();
+            _productRepositoryMock.Setup(r => r.GetAll(It.IsAny<string?>(), It.IsAny<decimal?>(),
                         It.IsAny<decimal?>(), It.IsAny<bool?>(), It.IsAny<int?>())).ReturnsAsync(products);
-            var query = new GetAllProductsQuery(null, null, null, null);
-            var handler = new GetAllProductQueryHandler(productRepositoryMock.Object);
+            var query = CreateQuery(null,null,null,null);
 
-            var result = await handler.Handle(query, CancellationToken.None);
+            var result = await _handler.Handle(query, CancellationToken.None);
 
-            productRepositoryMock.Verify(r => r.GetAll(It.IsAny<string?>(), It.IsAny<decimal?>(),
+            _productRepositoryMock.Verify(r => r.GetAll(It.IsAny<string?>(), It.IsAny<decimal?>(),
                         It.IsAny<decimal?>(), It.IsAny<bool?>(), It.IsAny<int?>()), Times.Once);
             Assert.Equal(2, result.Count());
             Assert.Equal("Мышка", products[0].Name);
@@ -58,19 +81,18 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
         [Fact]
         public async Task GetAllProducts_Should_Pass_Filters()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
-            productRepositoryMock.Setup(r => r.GetAll(
+            _productRepositoryMock.Setup(r => r.GetAll(
                 It.IsAny<string?>(),
                 It.IsAny<decimal?>(),
                 It.IsAny<decimal?>(),
                 It.IsAny<bool?>(),
                 It.IsAny<int?>())).ReturnsAsync(new List<Product>());
-            var handler = new GetAllProductQueryHandler(productRepositoryMock.Object);
-            var query = new GetAllProductsQuery(5,"Мышка",100,500,true);
 
-            await handler.Handle(query, CancellationToken.None);
+            var query = CreateQuery(5,"Мышка",100,500,true);
 
-            productRepositoryMock.Verify(r =>r.GetAll("Мышка", 100, 500, true, 5),Times.Once);
+            await _handler.Handle(query, CancellationToken.None);
+
+            _productRepositoryMock.Verify(r =>r.GetAll("Мышка", 100, 500, true, 5),Times.Once);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.Products.Queries.GetByIdProduct;
+﻿using Application.Products.Queries.GetAllProducts;
+using Application.Products.Queries.GetByIdProduct;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -12,10 +13,21 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
 {
     public class GetByIdProductHandlerTest
     {
+        private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly GetProductByIdQueryHandler _handler;
+
+        public GetByIdProductHandlerTest()
+        {
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _handler = new GetProductByIdQueryHandler(_productRepositoryMock.Object);
+        }
+        private GetProductByIdQuery CreateQuery(int id)
+        {
+            return new GetProductByIdQuery(id);
+        }
         [Fact]
         public async Task GetByIdProduct_Should_Get_Product()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
             var product = new Product
             {
                 Id = 1,
@@ -27,13 +39,12 @@ namespace UnitTestsMicroserviceProduct.Products.Queries
                 UserId = 1,
                 CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
             };
-            productRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(product);
+            _productRepositoryMock.Setup(r => r.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(product);
             var query = new GetProductByIdQuery(10);
-            var handler = new GetProductByIdQueryHandler(productRepositoryMock.Object);
 
-            var result = await handler.Handle(query, CancellationToken.None);
+            var result = await _handler.Handle(query, CancellationToken.None);
 
-            productRepositoryMock.Verify(r => r.GetByIdAsync(It.IsAny<int>()),Times.Once());
+            _productRepositoryMock.Verify(r => r.GetByIdAsync(It.IsAny<int>()),Times.Once());
             Assert.Equal("Мышка", result.Name);
         }
     }

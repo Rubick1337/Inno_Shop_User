@@ -1,5 +1,6 @@
 ﻿using Application.dto.User;
 using Application.Users.Commands;
+using Application.Users.Commands.DeleteUser;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -14,11 +15,21 @@ namespace UnitTestMicroserviceUsers.Users.Commands
 {
     public class UpdateUserCommandHandlerTest
     {
-        [Fact]
-        public async Task UpdateUser_Should_Update_User()
+        private readonly Mock<IUserRepository> _repositoryUserMock;
+        private readonly UpdateUserCommandHandler _handler;
+
+        public UpdateUserCommandHandlerTest()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            var user = new User
+            _repositoryUserMock = new Mock<IUserRepository>();
+            _handler = new UpdateUserCommandHandler(_repositoryUserMock.Object);
+        }
+        private UpdateUserCommand CreateCommand(int id,UpdateUserDto dto)
+        {
+            return new UpdateUserCommand(Id: id, Dto: dto);
+        }
+        private User CreateTestUser()
+        {
+            return new User
             {
                 Id = 10,
                 Name = "Test",
@@ -27,29 +38,34 @@ namespace UnitTestMicroserviceUsers.Users.Commands
                 Role = "User",
                 IsActived = false
             };
+        }
+        [Fact]
+        public async Task UpdateUser_Should_Update_User()
+        {
+            var user = CreateTestUser();
             var userDto = new UpdateUserDto(Name: "Test2",
                 Email: "test2@gmail.com",Role: "Admin");
-            repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(user);
-            var command = new UpdateUserCommand(Id: 10, Dto: userDto);
-            var handler = new UpdateUserCommandHandler(repositoryUserMock.Object);
+            _repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync(user);
 
-            await handler.Handle(command, CancellationToken.None);
+            var command = CreateCommand(10,userDto);
 
-            repositoryUserMock.Verify(r => r.UpdateAsync(10, It.Is<User>(u => u.Name == "Test2" && u.Email == "test2@gmail.com")), Times.Once());
+            await _handler.Handle(command, CancellationToken.None);
+
+            _repositoryUserMock.Verify(r => r.UpdateAsync(10, It.Is<User>(u => u.Name == "Test2" 
+            && u.Email == "test2@gmail.com")), Times.Once());
         }
         [Fact]
         public async Task UpdateUser_NotFound_User()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync((User?)null);
+            _repositoryUserMock.Setup(r => r.GetByIdAsync(10)).ReturnsAsync((User?)null);
             var userDto = new UpdateUserDto(Name: "Test2",
                 Email: "test2@gmail.com", Role: "Admin");
-            var command = new UpdateUserCommand(Id: 10, Dto: userDto);
-            var handler = new UpdateUserCommandHandler(repositoryUserMock.Object);
+
+            var command = CreateCommand(10, userDto);
 
             await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                await handler.Handle(command, CancellationToken.None);
+                await _handler.Handle(command, CancellationToken.None);
             });
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Application.Users.Commands.DeleteUser;
+using Application.Users.Commands.SetUserActiveStatus;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -12,11 +13,21 @@ namespace UnitTestMicroserviceUsers.Users.Commands
 {
     public class DeleteUserCommandHandlerTest
     {
-        [Fact]
-        public async Task DeleteUser_Should_Delete_User()
+        private readonly Mock<IUserRepository> _repositoryUserMock;
+        private readonly DeleteUserCommandHandler _handler;
+
+        public DeleteUserCommandHandlerTest()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            var user = new User
+            _repositoryUserMock = new Mock<IUserRepository>();
+            _handler = new DeleteUserCommandHandler(_repositoryUserMock.Object);
+        }
+        private DeleteUserCommand CreateCommand(int id)
+        {
+            return new DeleteUserCommand(Id: id);
+        }
+        private User CreateTestUser()
+        {
+            return new User
             {
                 Id = 10,
                 Name = "Test",
@@ -25,12 +36,16 @@ namespace UnitTestMicroserviceUsers.Users.Commands
                 Role = "User",
                 IsActived = false
             };
-            var handler = new DeleteUserCommandHandler(repositoryUserMock.Object);
-            var command = new DeleteUserCommand(Id: 10);
+        }
+        [Fact]
+        public async Task DeleteUser_Should_Delete_User()
+        {
+            var user = CreateTestUser();
+            var command = CreateCommand(user.Id);
 
-            await handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
-            repositoryUserMock.Verify(r => r.DeleteAsync(10), Times.Once());
+            _repositoryUserMock.Verify(r => r.DeleteAsync(10), Times.Once());
         }
     }
 }

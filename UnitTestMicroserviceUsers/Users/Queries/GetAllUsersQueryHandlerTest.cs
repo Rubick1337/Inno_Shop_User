@@ -1,22 +1,33 @@
-﻿using Application.Users.Queries.GetAllUsers;
+﻿using Application.dto.User;
+using Application.Users.Commands;
+using Application.Users.Queries.GetAllUsers;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace UnitTestMicroserviceUsers.Users.Queries
 {
     public class GetAllUsersQueryHandlerTest
     {
-        [Fact]
-        public async Task GetAllUsers_Should_Get_Users()
+        private readonly Mock<IUserRepository> _repositoryUserMock;
+        private readonly GetAllUsersQueryHandler _handler;
+
+        public GetAllUsersQueryHandlerTest()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            var users = new List<User>
+            _repositoryUserMock = new Mock<IUserRepository>();
+            _handler = new GetAllUsersQueryHandler(_repositoryUserMock.Object);
+        }
+
+        private List<User> CreateTestUsers()
+        {
+            return new List<User>
             {
                 new User
                 {
@@ -37,19 +48,24 @@ namespace UnitTestMicroserviceUsers.Users.Queries
                     IsActived = true
                 }
             };
-            repositoryUserMock.Setup(r => r.GetAllAsync(It.IsAny<string?>(),
+        }
+        private GetAllUsersQuery CreateQuery(string? name, string? email, string? role)
+        {
+            return new GetAllUsersQuery(name, email, role);
+        }
+
+        [Fact]
+        public async Task GetAllUsers_Should_Get_Users()
+        {
+            var users = CreateTestUsers();
+            _repositoryUserMock.Setup(r => r.GetAllAsync(It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>())).ReturnsAsync(users);
-            var handler = new GetAllUsersQueryHandler(repositoryUserMock.Object);
-            var query = new GetAllUsersQuery(
-                Name: null,
-                Email: null,
-                Role: null
-            );
+            var query = CreateQuery(null,null,null);
 
-            var result = (await handler.Handle(query, CancellationToken.None)).ToList();
+            var result = (await _handler.Handle(query, CancellationToken.None)).ToList();
 
-            repositoryUserMock.Verify(r =>
+            _repositoryUserMock.Verify(r =>
                r.GetAllAsync(null, null, null), Times.Once);
 
             Assert.Equal(2, result.Count);
@@ -61,20 +77,15 @@ namespace UnitTestMicroserviceUsers.Users.Queries
         [Fact]
         public async Task GetAllUsers_Should_Pass_Filters()
         {
-            var repositoryUserMock = new Mock<IUserRepository>();
-            repositoryUserMock.Setup(r => r.GetAllAsync(It.IsAny<string?>(),
+            _repositoryUserMock.Setup(r => r.GetAllAsync(It.IsAny<string?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>())).ReturnsAsync(new List<User>());
-            var handler = new GetAllUsersQueryHandler(repositoryUserMock.Object);
-            var query = new GetAllUsersQuery(
-                Name: "User",
-                Email: "user1@test.com",
-                Role: "User"
-            );
+            var query = CreateQuery("User", "user1@test.com", "User");
 
-            await handler.Handle(query, CancellationToken.None);
 
-            repositoryUserMock.Verify(r =>r.GetAllAsync("User", "user1@test.com", "User"),Times.Once);
+            await _handler.Handle(query, CancellationToken.None);
+
+            _repositoryUserMock.Verify(r =>r.GetAllAsync("User", "user1@test.com", "User"),Times.Once);
         }
     }
 }

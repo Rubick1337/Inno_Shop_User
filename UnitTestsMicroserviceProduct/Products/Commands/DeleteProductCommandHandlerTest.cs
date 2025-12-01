@@ -1,4 +1,6 @@
-﻿using Application.Products.Commands.DeleteProduct;
+﻿using Application.Dto.Product;
+using Application.Products.Commands.CreateProduct;
+using Application.Products.Commands.DeleteProduct;
 using Domain.Interfaces;
 using Domain.Models;
 using Moq;
@@ -12,10 +14,21 @@ namespace UnitTestsMicroserviceProduct.Products.Commands
 {
     public class DeleteProductCommandHandlerTest
     {
+        private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly DeleteProductCommandHandler _handler;
+
+        public DeleteProductCommandHandlerTest()
+        {
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _handler = new DeleteProductCommandHandler(_productRepositoryMock.Object);
+        }
+        private DeleteProductCommand CreateCommand(int userId, int id)
+        {
+            return new DeleteProductCommand(userId, id);
+        }
         [Fact]
         public async Task DeleteProduct_Should_Delete()
         {
-            var productRepositoryMock = new Mock<IProductRepository>();
             var product = new Product
             {
                 Id = 1,
@@ -27,14 +40,13 @@ namespace UnitTestsMicroserviceProduct.Products.Commands
                 UserId = 1,
                 CreatedAt = new DateTime(2025, 11, 11, 0, 0, 0, DateTimeKind.Utc)
             };
-            productRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(product);
+            _productRepositoryMock.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(product);
 
-            var command = new DeleteProductCommand(1, 1);
-            var handler = new DeleteProductCommandHandler(productRepositoryMock.Object);
+            var command = CreateCommand(1, 1);
 
-            await handler.Handle(command, CancellationToken.None);
+            await _handler.Handle(command, CancellationToken.None);
 
-            productRepositoryMock.Verify(r => r.DeleteAsync(1), Times.Once());
+            _productRepositoryMock.Verify(r => r.DeleteAsync(1), Times.Once());
         }
     }
 }
