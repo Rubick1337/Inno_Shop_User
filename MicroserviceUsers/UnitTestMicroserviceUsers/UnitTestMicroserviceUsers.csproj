@@ -18,10 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MicroserviceProduct\Application\Application.csproj" />
-    <ProjectReference Include="..\MicroserviceProduct\Data\Data.csproj" />
-    <ProjectReference Include="..\MicroserviceProduct\Domain\Domain.csproj" />
-    <ProjectReference Include="..\MicroserviceProduct\Inno_Shop_Product\Inno_Shop_Product.csproj" />
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Data\Data.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Inno_Shop_User\Inno_Shop_User.csproj" />
   </ItemGroup>
 
   <ItemGroup>
